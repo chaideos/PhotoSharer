@@ -15,6 +15,9 @@ public class UsersActivity extends Activity {
      */
     private ListView userList;
 
+    /**
+     * A reference to the HttpClient used to make requests.
+     */
     HttpClient httpClient;
 
     @Override

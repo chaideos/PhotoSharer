@@ -1,6 +1,8 @@
 package edu.sdsu.cs646.photosharer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -14,11 +16,10 @@ import org.json.JSONObject;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 /**
- *
+ * An AsyncTask which deals with retrieving the users list from the net.
  */
 public class RetrieveUsersTask extends AsyncTask<String, Void, String> {
 
@@ -29,6 +30,8 @@ public class RetrieveUsersTask extends AsyncTask<String, Void, String> {
     private final Context mContext;
 
     private ProgressDialog progressDialog;
+
+    private static final String USER_NAME_KEY = "name";
 
     public RetrieveUsersTask(Context context, HttpClient httpClient,
 	    ListView listView) {
@@ -55,7 +58,8 @@ public class RetrieveUsersTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPreExecute() {
 	progressDialog = new ProgressDialog(mContext);
-	progressDialog.setTitle("Obtaining Network Data..");
+	progressDialog.setTitle(mContext.getResources().getString(
+		R.string.retrieving_users_str));
 	progressDialog.setIndeterminate(true);
 	progressDialog.show();
     }
@@ -64,12 +68,12 @@ public class RetrieveUsersTask extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String result) {
 	try {
 	    JSONArray userData = new JSONArray(result);
-	    ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(
-		    mContext, android.R.layout.simple_list_item_1);
+	    List<String> users = new ArrayList<String>();
 	    for (int i = 0; i < userData.length(); i++) {
 		JSONObject user = (JSONObject) userData.get(i);
-		adapter.add(user.getString("name"));
+		users.add(user.getString(USER_NAME_KEY));
 	    }
+	    UsersListAdapter adapter = new UsersListAdapter(mContext, users);
 	    listView.setAdapter(adapter);
 	    progressDialog.dismiss();
 	} catch (JSONException e) {
