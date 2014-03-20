@@ -1,4 +1,4 @@
-package edu.sdsu.cs646.photosharer;
+package edu.sdsu.cs646.photosharer.uiadapters;
 
 import java.util.List;
 
@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import edu.sdsu.cs646.photosharer.R;
 
 /**
  *

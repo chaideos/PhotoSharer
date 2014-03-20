@@ -8,6 +8,10 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.widget.ListView;
 
+import edu.sdsu.cs646.photosharer.asynctasks.RetrieveUsersTask;
+import edu.sdsu.cs646.photosharer.databases.DatabaseHelper;
+import edu.sdsu.cs646.photosharer.uiadapters.UsersListAdapter;
+
 public class UsersActivity extends Activity {
 
     /**
@@ -20,19 +24,37 @@ public class UsersActivity extends Activity {
      */
     HttpClient httpClient;
 
+    /**
+     * A reference to the database helper class used to perform db operations.
+     */
+    DatabaseHelper dbHelper;
+
+    /**
+     * Indicates the number of users in the database.
+     */
+    long numOfUsers;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 	super.onCreate(savedInstanceState);
 	setContentView(R.layout.activity_main);
 	userList = (ListView) findViewById(R.id.usersList);
+	dbHelper = new DatabaseHelper(this);
+	numOfUsers = dbHelper.numOfUsers();
     }
 
     @Override
     protected void onResume() {
 	super.onResume();
-	httpClient = AndroidHttpClient.newInstance("Sample Client");
-	new RetrieveUsersTask(UsersActivity.this, httpClient, userList)
-		.execute("http://bismarck.sdsu.edu/photoserver/userlist");
+	if (numOfUsers <= 0) {
+	    httpClient = AndroidHttpClient.newInstance("Sample Client");
+	    new RetrieveUsersTask(UsersActivity.this, httpClient, userList)
+		    .execute("http://bismarck.sdsu.edu/photoserver/userlist");
+	} else {
+	    UsersListAdapter adapter = new UsersListAdapter(this,
+		    dbHelper.getUsers());
+	    userList.setAdapter(adapter);
+	}
     }
 
     @Override

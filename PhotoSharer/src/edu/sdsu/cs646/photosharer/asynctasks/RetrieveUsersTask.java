@@ -1,7 +1,8 @@
-package edu.sdsu.cs646.photosharer;
+package edu.sdsu.cs646.photosharer.asynctasks;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
@@ -18,10 +19,13 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.ListView;
 
+import edu.sdsu.cs646.photosharer.R;
+import edu.sdsu.cs646.photosharer.uiadapters.UsersListAdapter;
+
 /**
  * An AsyncTask which deals with retrieving the users list from the net.
  */
-public class RetrieveUsersTask extends AsyncTask<String, Void, String> {
+public class RetrieveUsersTask extends AsyncTask<String, Void, List<String>> {
 
     private final HttpClient httpClient;
 
@@ -41,18 +45,27 @@ public class RetrieveUsersTask extends AsyncTask<String, Void, String> {
     }
 
     @Override
-    protected String doInBackground(String... urls) {
-	String response = "";
+    protected List<String> doInBackground(String... urls) {
+	List<String> users = new ArrayList<String>();
 	ResponseHandler<String> responseHandler = new BasicResponseHandler();
 	HttpGet request = new HttpGet(urls[0]);
 	try {
-	    response = httpClient.execute(request, responseHandler);
+	    String response = httpClient.execute(request, responseHandler);
+	    JSONArray userData = new JSONArray(response);
+
+	    for (int i = 0; i < userData.length(); i++) {
+		JSONObject user = (JSONObject) userData.get(i);
+		users.add(user.getString(USER_NAME_KEY));
+	    }
+	    Collections.sort(users);
 	} catch (ClientProtocolException e) {
 
 	} catch (IOException e) {
 
+	} catch (JSONException e) {
+
 	}
-	return response;
+	return users;
     }
 
     @Override
@@ -65,19 +78,9 @@ public class RetrieveUsersTask extends AsyncTask<String, Void, String> {
     }
 
     @Override
-    protected void onPostExecute(String result) {
-	try {
-	    JSONArray userData = new JSONArray(result);
-	    List<String> users = new ArrayList<String>();
-	    for (int i = 0; i < userData.length(); i++) {
-		JSONObject user = (JSONObject) userData.get(i);
-		users.add(user.getString(USER_NAME_KEY));
-	    }
-	    UsersListAdapter adapter = new UsersListAdapter(mContext, users);
-	    listView.setAdapter(adapter);
-	    progressDialog.dismiss();
-	} catch (JSONException e) {
-
-	}
+    protected void onPostExecute(List<String> users) {
+	UsersListAdapter adapter = new UsersListAdapter(mContext, users);
+	listView.setAdapter(adapter);
+	progressDialog.dismiss();
     }
 }
