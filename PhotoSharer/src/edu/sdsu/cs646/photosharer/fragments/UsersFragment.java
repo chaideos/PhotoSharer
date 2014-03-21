@@ -19,6 +19,7 @@
 
 package edu.sdsu.cs646.photosharer.fragments;
 
+import java.util.Collections;
 import java.util.List;
 
 import android.app.ListFragment;
@@ -28,10 +29,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import edu.sdsu.cs646.photosharer.R;
 import edu.sdsu.cs646.photosharer.asynctasks.AddUsersTask;
 import edu.sdsu.cs646.photosharer.asynctasks.RetrieveUsersTask;
+import edu.sdsu.cs646.photosharer.data.User;
 import edu.sdsu.cs646.photosharer.databases.DatabaseHelper;
 import edu.sdsu.cs646.photosharer.interfaces.LoadDataListener;
 import edu.sdsu.cs646.photosharer.uiadapters.UsersListAdapter;
@@ -96,11 +100,11 @@ public class UsersFragment extends ListFragment implements LoadDataListener {
     }
 
     @Override
-    public void onDataLoadComplete(List<String> data) {
+    public void onDataLoadComplete(List<User> data) {
 	if (getActivity() != null) {
 	    setAdapter(data);
 	    progressDialog.dismiss();
-	    String[] userArray = new String[data.size()];
+	    User[] userArray = new User[data.size()];
 	    new AddUsersTask(getActivity()).execute(data.toArray(userArray));
 	}
     }
@@ -116,8 +120,16 @@ public class UsersFragment extends ListFragment implements LoadDataListener {
 	}
     }
 
-    private void setAdapter(List<String> data) {
+    @Override
+    public void onListItemClick(ListView list, View view, int position, long id) {
+	User selectedUser = (User) getListAdapter().getItem(position);
+	Toast.makeText(getActivity(), selectedUser.toString(),
+		Toast.LENGTH_LONG).show();
+    }
+
+    private void setAdapter(List<User> data) {
 	if (getActivity() != null) {
+	    Collections.sort(data);
 	    ListAdapter adapter = new UsersListAdapter(getActivity(), data);
 	    setListAdapter(adapter);
 	}

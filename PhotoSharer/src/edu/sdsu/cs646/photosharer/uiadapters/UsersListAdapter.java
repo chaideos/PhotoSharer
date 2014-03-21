@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import edu.sdsu.cs646.photosharer.R;
+import edu.sdsu.cs646.photosharer.data.User;
 
 /**
  * A custom list adapter displaying the users separated by headers of their
@@ -31,9 +32,9 @@ public class UsersListAdapter extends BaseAdapter {
 
     private final Context mContext;
 
-    private final List<String> users;
+    private final List<User> users;
 
-    public UsersListAdapter(Context context, List<String> users) {
+    public UsersListAdapter(Context context, List<User> users) {
 	mContext = context;
 	this.users = users;
     }
@@ -67,7 +68,7 @@ public class UsersListAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-	return position;
+	return users.get(position);
     }
 
     @Override
@@ -92,7 +93,7 @@ public class UsersListAdapter extends BaseAdapter {
 	    holder = (ViewHolder) convertView.getTag();
 	}
 	TextView textView = holder.getText();
-	textView.setText(users.get(position));
+	textView.setText(users.get(position).getName());
 	return convertView;
     }
 
@@ -140,8 +141,4 @@ public class UsersListAdapter extends BaseAdapter {
     // public boolean isEnabled(int position) {
     // return false;
     // }
-
-    public List<String> getData() {
-	return users;
-    }
 }

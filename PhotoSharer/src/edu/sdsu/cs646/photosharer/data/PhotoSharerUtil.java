@@ -1,4 +1,4 @@
-package edu.sdsu.cs646.photosharer.util;
+package edu.sdsu.cs646.photosharer.data;
 
 import java.util.ArrayList;
 import java.util.Collections;

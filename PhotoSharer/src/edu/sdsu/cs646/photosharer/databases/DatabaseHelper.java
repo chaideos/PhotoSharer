@@ -11,6 +11,8 @@ import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 
+import edu.sdsu.cs646.photosharer.data.User;
+
 /**
  * A class which deals with creating the database and tables to be used in the
  * app.
@@ -49,10 +51,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	onCreate(appDb);
     }
 
-    public long addUser(String user) {
+    public long addUser(User user) {
 	SQLiteDatabase db = this.getWritableDatabase();
 	ContentValues values = new ContentValues();
-	values.put(NAME, user);
+	values.put(NAME, user.getName());
+	values.put(ID, Integer.parseInt(user.getId()));
 	long retVal = db.insert(USERS_TABLE, "", values);
 	db.close();
 	return retVal;
@@ -78,17 +81,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * 
      * @return - A list of users
      */
-    public List<String> getUsers() {
-	List<String> users = new ArrayList<String>();
+    public List<User> getUsers() {
+	List<User> users = new ArrayList<User>();
 	SQLiteDatabase db = this.getReadableDatabase();
-	int columnIndex = -1;
-	Cursor cursor = db.query(USERS_TABLE, new String[] { NAME }, null,
+	int nameColumn = -1, idColumn = -1;
+	Cursor cursor = db.query(USERS_TABLE, new String[] { ID, NAME }, null,
 		null, null, null, null);
 	if (cursor != null && cursor.moveToFirst()) {
-	    columnIndex = cursor.getColumnIndex(NAME);
-	    users.add(cursor.getString(columnIndex));
+	    User user = null;
+	    nameColumn = cursor.getColumnIndex(NAME);
+	    idColumn = cursor.getColumnIndex(ID);
+	    user = new User(String.valueOf(cursor.getInt(idColumn)),
+		    cursor.getString(nameColumn));
+	    users.add(user);
 	    while (cursor.moveToNext()) {
-		users.add(cursor.getString(columnIndex));
+		user = new User(String.valueOf(cursor.getInt(idColumn)),
+			cursor.getString(nameColumn));
+		users.add(user);
 	    }
 	    cursor.close();
 	}
