@@ -14,13 +14,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.ProgressDialog;
-import android.content.Context;
+import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
-import android.widget.ListView;
 
-import edu.sdsu.cs646.photosharer.R;
-import edu.sdsu.cs646.photosharer.uiadapters.UsersListAdapter;
+import edu.sdsu.cs646.photosharer.interfaces.LoadDataListener;
 
 /**
  * An AsyncTask which deals with retrieving the users list from the net.
@@ -29,26 +26,22 @@ public class RetrieveUsersTask extends AsyncTask<String, Void, List<String>> {
 
     private final HttpClient httpClient;
 
-    private final ListView listView;
-
-    private final Context mContext;
-
-    private ProgressDialog progressDialog;
+    private final LoadDataListener listener;
 
     private static final String USER_NAME_KEY = "name";
 
-    public RetrieveUsersTask(Context context, HttpClient httpClient,
-	    ListView listView) {
-	mContext = context;
-	this.httpClient = httpClient;
-	this.listView = listView;
+    private static final String URL = "/userlist";
+
+    public RetrieveUsersTask(LoadDataListener listener) {
+	this.listener = listener;
+	this.httpClient = AndroidHttpClient.newInstance("Sample User Agent");
     }
 
     @Override
     protected List<String> doInBackground(String... urls) {
 	List<String> users = new ArrayList<String>();
 	ResponseHandler<String> responseHandler = new BasicResponseHandler();
-	HttpGet request = new HttpGet(urls[0]);
+	HttpGet request = new HttpGet(urls[0] + URL);
 	try {
 	    String response = httpClient.execute(request, responseHandler);
 	    JSONArray userData = new JSONArray(response);
@@ -64,23 +57,20 @@ public class RetrieveUsersTask extends AsyncTask<String, Void, List<String>> {
 
 	} catch (JSONException e) {
 
+	} finally {
+	    httpClient.getConnectionManager().shutdown();
+	    ((AndroidHttpClient) httpClient).close();
 	}
 	return users;
     }
 
     @Override
     protected void onPreExecute() {
-	progressDialog = new ProgressDialog(mContext);
-	progressDialog.setTitle(mContext.getResources().getString(
-		R.string.retrieving_users_str));
-	progressDialog.setIndeterminate(true);
-	progressDialog.show();
+	listener.preDataFetch();
     }
 
     @Override
     protected void onPostExecute(List<String> users) {
-	UsersListAdapter adapter = new UsersListAdapter(mContext, users);
-	listView.setAdapter(adapter);
-	progressDialog.dismiss();
+	listener.onDataLoadComplete(users);
     }
 }

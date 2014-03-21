@@ -9,20 +9,16 @@
     tools:context=".UsersActivity"
     android:orientation="vertical" >
 
-      <TextView
+    <TextView
         android:id="@+id/dataLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="" />
-      
-    <ListView
-        android:id="@+id/usersList"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1" >
-    </ListView>
 
-  
+        android:text="" />
+    
+    <fragment android:name="edu.sdsu.cs646.photosharer.fragments.UsersFragment"
+        android:id="@+id/user_fragment"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
 
 </LinearLayout>
