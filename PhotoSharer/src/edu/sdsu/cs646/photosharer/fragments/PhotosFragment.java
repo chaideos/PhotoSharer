@@ -22,7 +22,6 @@ package edu.sdsu.cs646.photosharer.fragments;
 import java.util.Collections;
 import java.util.List;
 
-import android.app.Activity;
 import android.app.ListFragment;
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -37,7 +36,6 @@ import edu.sdsu.cs646.photosharer.asynctasks.RetrieveUserPhotosTask;
 import edu.sdsu.cs646.photosharer.data.UserPhoto;
 import edu.sdsu.cs646.photosharer.databases.DatabaseHelper;
 import edu.sdsu.cs646.photosharer.interfaces.LoadDataListener;
-import edu.sdsu.cs646.photosharer.interfaces.UserSelectedListener;
 import edu.sdsu.cs646.photosharer.uiadapters.NetworkDataListAdapter;
 
 /**
@@ -47,7 +45,7 @@ public class PhotosFragment extends ListFragment implements
 	LoadDataListener<UserPhoto> {
 
     public static final String USER_KEY = "USER_ID";
-    private UserSelectedListener selectionListener;
+
     /**
      * A reference to the database helper class used to perform db operations.
      */
@@ -77,20 +75,7 @@ public class PhotosFragment extends ListFragment implements
     public void onCreate(Bundle savedInstanceState) {
 	super.onCreate(savedInstanceState);
 	baseUrl = getResources().getString(R.string.base_url);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-	super.onAttach(activity);
-
-	// This makes sure that the container activity has implemented
-	// the callback interface. If not, it throws an exception
-	try {
-	    selectionListener = (UserSelectedListener) activity;
-	} catch (ClassCastException e) {
-	    throw new ClassCastException(activity.toString()
-		    + " must implement UserSelectedListener");
-	}
+	setRetainInstance(true);
     }
 
     @Override
@@ -110,16 +95,6 @@ public class PhotosFragment extends ListFragment implements
 	} else {
 	    // setAdapter(dbHelper.getUsers());
 	}
-    }
-
-    @Override
-    public void onResume() {
-	super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-	super.onPause();
     }
 
     @Override
@@ -146,7 +121,7 @@ public class PhotosFragment extends ListFragment implements
     @Override
     public void onListItemClick(ListView list, View view, int position, long id) {
 	UserPhoto selectedUser = (UserPhoto) getListAdapter().getItem(position);
-	selectionListener.onUserSelected(selectedUser.getId());
+	// selectionListener.onUserSelected(selectedUser.getId());
     }
 
     private void setAdapter(List<UserPhoto> data) {
@@ -168,6 +143,7 @@ public class PhotosFragment extends ListFragment implements
 	Bundle args = new Bundle();
 	args.putString(USER_KEY, user);
 	fragment.setArguments(args);
+	fragment.setRetainInstance(true);
 	return fragment;
     }
 }

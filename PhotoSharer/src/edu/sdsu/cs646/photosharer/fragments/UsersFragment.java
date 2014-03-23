@@ -72,6 +72,7 @@ public class UsersFragment extends ListFragment implements
     public void onCreate(Bundle savedInstanceState) {
 	super.onCreate(savedInstanceState);
 	baseUrl = getResources().getString(R.string.base_url);
+	setRetainInstance(true);
     }
 
     @Override
@@ -86,6 +87,12 @@ public class UsersFragment extends ListFragment implements
 	    throw new ClassCastException(activity.toString()
 		    + " must implement UserSelectedListener");
 	}
+    }
+
+    @Override
+    public void onDetach() {
+	super.onDetach();
+	selectionListener = null;
     }
 
     @Override
@@ -104,16 +111,6 @@ public class UsersFragment extends ListFragment implements
 	} else {
 	    setAdapter(dbHelper.getUsers());
 	}
-    }
-
-    @Override
-    public void onResume() {
-	super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-	super.onPause();
     }
 
     @Override
