@@ -11,12 +11,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import edu.sdsu.cs646.photosharer.R;
-import edu.sdsu.cs646.photosharer.data.User;
+import edu.sdsu.cs646.photosharer.data.NetworkData;
 
 /**
- * A custom list adapter displaying the users separated by headers of their
- * starting letters. This code has been adapted from the following references
- * Jeff Sharkey's SeperatedListAdapter
+ * A custom list adapter displaying the NetworkDatas separated by headers of
+ * their starting letters. This code has been adapted from the following
+ * references Jeff Sharkey's SeperatedListAdapter
  * [http://jsharkey.org/blog/2008/08/18/separating-lists-with
  * -headers-in-android-09/] MergeAdapter provided by CommonsWare [https://github
  * .com/commonsguy/cwac-merge/blob/master/merge/src/com/commonsware
@@ -24,7 +24,7 @@ import edu.sdsu.cs646.photosharer.data.User;
  * [http://www.cyrilmottier.com/2010/04/08/astuce-7-creer-des-listes-a-cellules-
  * variees/]
  */
-public class UsersListAdapter extends BaseAdapter {
+public class NetworkDataListAdapter<T extends NetworkData> extends BaseAdapter {
 
     public final static int TYPE_SECTION_HEADER = 0;
 
@@ -32,11 +32,11 @@ public class UsersListAdapter extends BaseAdapter {
 
     private final Context mContext;
 
-    private final List<User> users;
+    private final List<T> data;
 
-    public UsersListAdapter(Context context, List<User> users) {
+    public NetworkDataListAdapter(Context context, List<T> data) {
 	mContext = context;
-	this.users = users;
+	this.data = data;
     }
 
     // Using the ViewHolder/ViewWrapper pattern as discussed by Mark Murphy in
@@ -63,12 +63,12 @@ public class UsersListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-	return users.size();
+	return data.size();
     }
 
     @Override
     public Object getItem(int position) {
-	return users.get(position);
+	return data.get(position);
     }
 
     @Override
@@ -84,61 +84,16 @@ public class UsersListAdapter extends BaseAdapter {
 	    convertView = LayoutInflater.from(mContext).inflate(
 		    R.layout.list_item_row, null);
 	    TextView textView = (TextView) convertView
-		    .findViewById(R.id.userText);
+		    .findViewById(R.id.dataText);
 	    ImageView imageView = (ImageView) convertView
-		    .findViewById(R.id.userImage);
+		    .findViewById(R.id.dataImage);
 	    holder = new ViewHolder(imageView, textView);
 	    convertView.setTag(holder);
 	} else {
 	    holder = (ViewHolder) convertView.getTag();
 	}
 	TextView textView = holder.getText();
-	textView.setText(users.get(position).getName());
+	textView.setText(data.get(position).getName());
 	return convertView;
     }
-
-    //
-    // /**
-    // * Returns the number of types of Views that will be created by getView().
-    // * We have one view for sections containing starting letters of the Users
-    // * and one to display a pic and name of the user.
-    // */
-    // @Override
-    // public int getViewTypeCount() {
-    //
-    // return TOTAL_VIEWS;
-    // }
-    //
-    // /**
-    // * Get the type of View that will be created by getView() for the
-    // specified
-    // * item.
-    // *
-    // * @param position
-    // * Position of the item whose data we want
-    // */
-    // @Override
-    // public int getItemViewType(int position) {
-    //
-    // return 2;
-    // }
-    //
-    // /**
-    // * Determines if the list item is selectable/clickable.
-    // */
-    // @Override
-    // public boolean areAllItemsEnabled() {
-    // return false;
-    // }
-    //
-    // /**
-    // * Returns true if the item at the specified position is not a separator.
-    // *
-    // * @param position
-    // * Position of the item whose data we want
-    // */
-    // @Override
-    // public boolean isEnabled(int position) {
-    // return false;
-    // }
 }

@@ -6,6 +6,7 @@
     <string name="no_users_str">No users currently available</string>
     <string name="updating_str">Updating...</string>
     <string name="retrieving_users_str">Retrieving Users ...</string>
+    <string name="retrieving_photos_str">Retrieving User Photos...</string>
     <string name="base_url">http://bismarck.sdsu.edu/photoserver</string>
 	<string name="user_image_str">User Image</string>
 </resources>

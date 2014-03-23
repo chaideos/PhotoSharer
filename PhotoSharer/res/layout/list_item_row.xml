@@ -6,7 +6,7 @@
     android:layout_margin="5dp">
 
     <ImageView
-        android:id="@+id/userImage"
+        android:id="@+id/dataImage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_contact_picture"
@@ -15,7 +15,7 @@
          />
 
     <TextView
-        android:id="@+id/userText"
+        android:id="@+id/dataText"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.80"

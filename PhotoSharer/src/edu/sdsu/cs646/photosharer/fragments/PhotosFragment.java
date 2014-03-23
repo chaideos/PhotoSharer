@@ -33,20 +33,20 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import edu.sdsu.cs646.photosharer.R;
-import edu.sdsu.cs646.photosharer.asynctasks.AddUsersTask;
-import edu.sdsu.cs646.photosharer.asynctasks.RetrieveUsersTask;
-import edu.sdsu.cs646.photosharer.data.User;
+import edu.sdsu.cs646.photosharer.asynctasks.RetrieveUserPhotosTask;
+import edu.sdsu.cs646.photosharer.data.UserPhoto;
 import edu.sdsu.cs646.photosharer.databases.DatabaseHelper;
 import edu.sdsu.cs646.photosharer.interfaces.LoadDataListener;
 import edu.sdsu.cs646.photosharer.interfaces.UserSelectedListener;
 import edu.sdsu.cs646.photosharer.uiadapters.NetworkDataListAdapter;
 
 /**
- * A ListFragment depicting the users list
+ * A ListFragment depicting the user photos list
  */
-public class UsersFragment extends ListFragment implements
-	LoadDataListener<User> {
+public class PhotosFragment extends ListFragment implements
+	LoadDataListener<UserPhoto> {
 
+    public static final String USER_KEY = "USER_ID";
     private UserSelectedListener selectionListener;
     /**
      * A reference to the database helper class used to perform db operations.
@@ -56,12 +56,17 @@ public class UsersFragment extends ListFragment implements
     /**
      * Indicates the number of users in the database.
      */
-    long numOfUsers;
+    long numOfPhotos;
 
     /**
      * Indicates the base URL of the photo server.
      */
     String baseUrl;
+
+    /**
+     * Indicates the user whose photos need to be retrieved.
+     */
+    String userId;
 
     /**
      * A reference to a ProgressDialog widget
@@ -97,12 +102,13 @@ public class UsersFragment extends ListFragment implements
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
 	super.onActivityCreated(savedInstanceState);
+	userId = getArguments().getString(USER_KEY);
 	dbHelper = new DatabaseHelper(getActivity());
-	numOfUsers = dbHelper.numOfUsers();
-	if (numOfUsers <= 0) {
-	    new RetrieveUsersTask(this).execute(baseUrl);
+	numOfPhotos = 0;
+	if (numOfPhotos <= 0) {
+	    new RetrieveUserPhotosTask(this).execute(baseUrl, userId);
 	} else {
-	    setAdapter(dbHelper.getUsers());
+	    // setAdapter(dbHelper.getUsers());
 	}
     }
 
@@ -117,12 +123,12 @@ public class UsersFragment extends ListFragment implements
     }
 
     @Override
-    public void onDataLoadComplete(List<User> data) {
+    public void onDataLoadComplete(List<UserPhoto> data) {
 	if (getActivity() != null) {
 	    setAdapter(data);
 	    progressDialog.dismiss();
-	    User[] userArray = new User[data.size()];
-	    new AddUsersTask(getActivity()).execute(data.toArray(userArray));
+	    UserPhoto[] userArray = new UserPhoto[data.size()];
+	    // new AddUsersTask(getActivity()).execute(data.toArray(userArray));
 	}
     }
 
@@ -131,7 +137,7 @@ public class UsersFragment extends ListFragment implements
 	if (getActivity() != null) {
 	    progressDialog = new ProgressDialog(getActivity());
 	    progressDialog.setTitle(getResources().getString(
-		    R.string.retrieving_users_str));
+		    R.string.retrieving_photos_str));
 	    progressDialog.setIndeterminate(true);
 	    progressDialog.show();
 	}
@@ -139,16 +145,29 @@ public class UsersFragment extends ListFragment implements
 
     @Override
     public void onListItemClick(ListView list, View view, int position, long id) {
-	User selectedUser = (User) getListAdapter().getItem(position);
+	UserPhoto selectedUser = (UserPhoto) getListAdapter().getItem(position);
 	selectionListener.onUserSelected(selectedUser.getId());
     }
 
-    private void setAdapter(List<User> data) {
+    private void setAdapter(List<UserPhoto> data) {
 	if (getActivity() != null) {
 	    Collections.sort(data);
-	    ListAdapter adapter = new NetworkDataListAdapter<User>(
+	    ListAdapter adapter = new NetworkDataListAdapter<UserPhoto>(
 		    getActivity(), data);
 	    setListAdapter(adapter);
 	}
+    }
+
+    /**
+     * @param user
+     *            - A user whose photos need to be retrieved
+     * @return - PhotosFragment
+     */
+    public static PhotosFragment newInstance(String user) {
+	PhotosFragment fragment = new PhotosFragment();
+	Bundle args = new Bundle();
+	args.putString(USER_KEY, user);
+	fragment.setArguments(args);
+	return fragment;
     }
 }

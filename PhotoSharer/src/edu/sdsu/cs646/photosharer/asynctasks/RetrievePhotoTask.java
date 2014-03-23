@@ -2,6 +2,7 @@ package edu.sdsu.cs646.photosharer.asynctasks;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
@@ -16,32 +17,29 @@ import org.json.JSONObject;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 
-import edu.sdsu.cs646.photosharer.data.User;
 import edu.sdsu.cs646.photosharer.interfaces.LoadDataListener;
 
 /**
  * An AsyncTask which deals with retrieving the users list from the net.
  */
-public class RetrieveUsersTask extends AsyncTask<String, Void, List<User>> {
+public class RetrievePhotoTask extends AsyncTask<String, Void, List<String>> {
 
     private final HttpClient httpClient;
 
-    private final LoadDataListener<User> listener;
+    private final LoadDataListener listener;
 
     private static final String USER_NAME_KEY = "name";
 
-    private static final String ID_KEY = "id";
-
     private static final String URL = "/userlist";
 
-    public RetrieveUsersTask(LoadDataListener<User> listener) {
+    public RetrievePhotoTask(LoadDataListener listener) {
 	this.listener = listener;
 	this.httpClient = AndroidHttpClient.newInstance("Sample User Agent");
     }
 
     @Override
-    protected List<User> doInBackground(String... urls) {
-	List<User> users = new ArrayList<User>();
+    protected List<String> doInBackground(String... urls) {
+	List<String> users = new ArrayList<String>();
 	ResponseHandler<String> responseHandler = new BasicResponseHandler();
 	HttpGet request = new HttpGet(urls[0] + URL);
 	try {
@@ -50,9 +48,9 @@ public class RetrieveUsersTask extends AsyncTask<String, Void, List<User>> {
 
 	    for (int i = 0; i < userData.length(); i++) {
 		JSONObject user = (JSONObject) userData.get(i);
-		users.add(new User(user.getString(ID_KEY), user
-			.getString(USER_NAME_KEY)));
+		users.add(user.getString(USER_NAME_KEY));
 	    }
+	    Collections.sort(users);
 	} catch (ClientProtocolException e) {
 
 	} catch (IOException e) {
@@ -72,7 +70,7 @@ public class RetrieveUsersTask extends AsyncTask<String, Void, List<User>> {
     }
 
     @Override
-    protected void onPostExecute(List<User> users) {
-	listener.onDataLoadComplete(users);
+    protected void onPostExecute(List<String> users) {
+	// listener.onDataLoadComplete(users);
     }
 }

@@ -9,15 +9,8 @@
     tools:context=".UsersActivity"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/dataLabel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
-        android:text="" />
-    
-    <fragment android:name="edu.sdsu.cs646.photosharer.fragments.UsersFragment"
-        android:id="@+id/user_fragment"
+    <FrameLayout 
+        android:id="@+id/fragment_container"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content" />
 

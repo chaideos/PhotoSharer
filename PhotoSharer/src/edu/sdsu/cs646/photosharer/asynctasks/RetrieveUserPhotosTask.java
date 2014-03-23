@@ -2,6 +2,7 @@ package edu.sdsu.cs646.photosharer.asynctasks;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
@@ -16,43 +17,46 @@ import org.json.JSONObject;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 
-import edu.sdsu.cs646.photosharer.data.User;
+import edu.sdsu.cs646.photosharer.data.UserPhoto;
 import edu.sdsu.cs646.photosharer.interfaces.LoadDataListener;
 
 /**
  * An AsyncTask which deals with retrieving the users list from the net.
  */
-public class RetrieveUsersTask extends AsyncTask<String, Void, List<User>> {
+public class RetrieveUserPhotosTask extends
+	AsyncTask<String, Void, List<UserPhoto>> {
 
     private final HttpClient httpClient;
 
-    private final LoadDataListener<User> listener;
+    private final LoadDataListener<UserPhoto> listener;
 
-    private static final String USER_NAME_KEY = "name";
+    private static final String PHOTO_NAME_KEY = "name";
 
     private static final String ID_KEY = "id";
 
-    private static final String URL = "/userlist";
+    private static final String URL = "/userphotos/";
 
-    public RetrieveUsersTask(LoadDataListener<User> listener) {
+    public RetrieveUserPhotosTask(LoadDataListener<UserPhoto> listener) {
 	this.listener = listener;
 	this.httpClient = AndroidHttpClient.newInstance("Sample User Agent");
     }
 
     @Override
-    protected List<User> doInBackground(String... urls) {
-	List<User> users = new ArrayList<User>();
+    protected List<UserPhoto> doInBackground(String... urls) {
+	List<UserPhoto> photos = new ArrayList<UserPhoto>();
 	ResponseHandler<String> responseHandler = new BasicResponseHandler();
-	HttpGet request = new HttpGet(urls[0] + URL);
+	String userId = urls[1];
+	HttpGet request = new HttpGet(urls[0] + URL + userId);
 	try {
 	    String response = httpClient.execute(request, responseHandler);
-	    JSONArray userData = new JSONArray(response);
+	    JSONArray photoData = new JSONArray(response);
 
-	    for (int i = 0; i < userData.length(); i++) {
-		JSONObject user = (JSONObject) userData.get(i);
-		users.add(new User(user.getString(ID_KEY), user
-			.getString(USER_NAME_KEY)));
+	    for (int i = 0; i < photoData.length(); i++) {
+		JSONObject photo = (JSONObject) photoData.get(i);
+		photos.add(new UserPhoto(photo.getString(ID_KEY), photo
+			.getString(PHOTO_NAME_KEY)));
 	    }
+	    Collections.sort(photos);
 	} catch (ClientProtocolException e) {
 
 	} catch (IOException e) {
@@ -63,7 +67,7 @@ public class RetrieveUsersTask extends AsyncTask<String, Void, List<User>> {
 	    httpClient.getConnectionManager().shutdown();
 	    ((AndroidHttpClient) httpClient).close();
 	}
-	return users;
+	return photos;
     }
 
     @Override
@@ -72,7 +76,7 @@ public class RetrieveUsersTask extends AsyncTask<String, Void, List<User>> {
     }
 
     @Override
-    protected void onPostExecute(List<User> users) {
-	listener.onDataLoadComplete(users);
+    protected void onPostExecute(List<UserPhoto> photos) {
+	listener.onDataLoadComplete(photos);
     }
 }

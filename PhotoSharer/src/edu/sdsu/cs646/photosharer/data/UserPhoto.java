@@ -3,9 +3,9 @@ package edu.sdsu.cs646.photosharer.data;
 import android.os.Parcel;
 
 /**
- * A class depicting a user on the photo server
+ * A class depicting a user-photo on the photo server
  */
-public class User extends NetworkData {
+public class UserPhoto extends NetworkData {
 
     private final String id;
     private final String name;
@@ -25,19 +25,14 @@ public class User extends NetworkData {
 	return name;
     }
 
-    public User(Parcel in) {
-	this.id = in.readString();
-	this.name = in.readString();
-    }
-
-    public User(String id, String name) {
+    public UserPhoto(String id, String name) {
 	this.id = id;
 	this.name = name;
     }
 
-    @Override
-    public String toString() {
-	return this.id + ":" + this.name;
+    public UserPhoto(Parcel in) {
+	this.id = in.readString();
+	this.name = in.readString();
     }
 
     @Override
