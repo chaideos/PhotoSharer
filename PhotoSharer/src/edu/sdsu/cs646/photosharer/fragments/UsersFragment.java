@@ -38,7 +38,7 @@ import edu.sdsu.cs646.photosharer.asynctasks.RetrieveUsersTask;
 import edu.sdsu.cs646.photosharer.data.User;
 import edu.sdsu.cs646.photosharer.databases.DatabaseHelper;
 import edu.sdsu.cs646.photosharer.interfaces.LoadDataListener;
-import edu.sdsu.cs646.photosharer.interfaces.UserSelectedListener;
+import edu.sdsu.cs646.photosharer.interfaces.UserSelectionListener;
 import edu.sdsu.cs646.photosharer.uiadapters.NetworkDataListAdapter;
 
 /**
@@ -47,7 +47,7 @@ import edu.sdsu.cs646.photosharer.uiadapters.NetworkDataListAdapter;
 public class UsersFragment extends ListFragment implements
 	LoadDataListener<User> {
 
-    private UserSelectedListener selectionListener;
+    private UserSelectionListener selectionListener;
     /**
      * A reference to the database helper class used to perform db operations.
      */
@@ -82,7 +82,7 @@ public class UsersFragment extends ListFragment implements
 	// This makes sure that the container activity has implemented
 	// the callback interface. If not, it throws an exception
 	try {
-	    selectionListener = (UserSelectedListener) activity;
+	    selectionListener = (UserSelectionListener) activity;
 	} catch (ClassCastException e) {
 	    throw new ClassCastException(activity.toString()
 		    + " must implement UserSelectedListener");

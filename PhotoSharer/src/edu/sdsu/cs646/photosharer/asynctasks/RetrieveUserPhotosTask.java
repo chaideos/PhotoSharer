@@ -36,6 +36,8 @@ public class RetrieveUserPhotosTask extends
 
     private static final String URL = "/userphotos/";
 
+    private static final String PHOTO_URL = "/photo/";
+
     public RetrieveUserPhotosTask(LoadDataListener<UserPhoto> listener) {
 	this.listener = listener;
 	this.httpClient = AndroidHttpClient.newInstance("Sample User Agent");
@@ -53,8 +55,10 @@ public class RetrieveUserPhotosTask extends
 
 	    for (int i = 0; i < photoData.length(); i++) {
 		JSONObject photo = (JSONObject) photoData.get(i);
-		photos.add(new UserPhoto(photo.getString(ID_KEY), photo
-			.getString(PHOTO_NAME_KEY)));
+		String photoId = photo.getString(ID_KEY);
+		photos.add(new UserPhoto(photoId, photo
+			.getString(PHOTO_NAME_KEY), urls[0] + PHOTO_URL
+			+ photoId));
 	    }
 	    Collections.sort(photos);
 	} catch (ClientProtocolException e) {

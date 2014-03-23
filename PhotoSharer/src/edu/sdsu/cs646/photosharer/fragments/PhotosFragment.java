@@ -22,6 +22,7 @@ package edu.sdsu.cs646.photosharer.fragments;
 import java.util.Collections;
 import java.util.List;
 
+import android.app.Activity;
 import android.app.ListFragment;
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -32,10 +33,12 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import edu.sdsu.cs646.photosharer.R;
+import edu.sdsu.cs646.photosharer.asynctasks.AddPhotosTask;
 import edu.sdsu.cs646.photosharer.asynctasks.RetrieveUserPhotosTask;
 import edu.sdsu.cs646.photosharer.data.UserPhoto;
 import edu.sdsu.cs646.photosharer.databases.DatabaseHelper;
 import edu.sdsu.cs646.photosharer.interfaces.LoadDataListener;
+import edu.sdsu.cs646.photosharer.interfaces.PhotoSelectionListener;
 import edu.sdsu.cs646.photosharer.uiadapters.NetworkDataListAdapter;
 
 /**
@@ -45,6 +48,8 @@ public class PhotosFragment extends ListFragment implements
 	LoadDataListener<UserPhoto> {
 
     public static final String USER_KEY = "USER_ID";
+
+    private PhotoSelectionListener selectionListener;
 
     /**
      * A reference to the database helper class used to perform db operations.
@@ -79,6 +84,26 @@ public class PhotosFragment extends ListFragment implements
     }
 
     @Override
+    public void onAttach(Activity activity) {
+	super.onAttach(activity);
+
+	// This makes sure that the container activity has implemented
+	// the callback interface. If not, it throws an exception
+	try {
+	    selectionListener = (PhotoSelectionListener) activity;
+	} catch (ClassCastException e) {
+	    throw new ClassCastException(activity.toString()
+		    + " must implement PhotoSelectionListener");
+	}
+    }
+
+    @Override
+    public void onDetach() {
+	super.onDetach();
+	selectionListener = null;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	    Bundle savedInstanceState) {
 	return super.onCreateView(inflater, container, savedInstanceState);
@@ -102,8 +127,8 @@ public class PhotosFragment extends ListFragment implements
 	if (getActivity() != null) {
 	    setAdapter(data);
 	    progressDialog.dismiss();
-	    UserPhoto[] userArray = new UserPhoto[data.size()];
-	    // new AddUsersTask(getActivity()).execute(data.toArray(userArray));
+	    UserPhoto[] photoArray = new UserPhoto[data.size()];
+	    new AddPhotosTask(getActivity()).execute(data.toArray(photoArray));
 	}
     }
 
@@ -120,8 +145,9 @@ public class PhotosFragment extends ListFragment implements
 
     @Override
     public void onListItemClick(ListView list, View view, int position, long id) {
-	UserPhoto selectedUser = (UserPhoto) getListAdapter().getItem(position);
-	// selectionListener.onUserSelected(selectedUser.getId());
+	UserPhoto selectedPhoto = (UserPhoto) getListAdapter()
+		.getItem(position);
+	selectionListener.onPhotoSelected(selectedPhoto.getLink());
     }
 
     private void setAdapter(List<UserPhoto> data) {

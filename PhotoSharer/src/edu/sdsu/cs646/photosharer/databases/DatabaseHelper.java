@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 
 import edu.sdsu.cs646.photosharer.data.User;
+import edu.sdsu.cs646.photosharer.data.UserPhoto;
 
 /**
  * A class which deals with creating the database and tables to be used in the
@@ -25,16 +26,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String USERS_TABLE = "users";
 
+    private static final String PHOTOS_TABLE = "photos";
+
     private static final String ID = "_id";
 
     private static final String NAME = "name";
+
+    private static final String LINK = "link";
 
     private static final String CREATE_USERS_TABLE = "create table "
 	    + USERS_TABLE + " ( " + ID + " INTEGER PRIMARY KEY," + NAME
 	    + " TEXT NOT NULL)";
 
+    private static final String CREATE_PHOTOS_TABLE = "create table "
+	    + PHOTOS_TABLE + " ( " + ID + " INTEGER PRIMARY KEY," + NAME
+	    + "TEXT NOT NULL," + LINK + " TEXT NOT NULL)";
+
     private static final String USER_COUNT_QUERY = "select count(*) from "
 	    + USERS_TABLE;
+
+    private static final String PHOTO_COUNT_QUERY = "select count(*) from "
+	    + PHOTOS_TABLE;
 
     public DatabaseHelper(Context context) {
 	super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -43,37 +55,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase appDb) {
 	appDb.execSQL(CREATE_USERS_TABLE);
+	appDb.execSQL(CREATE_PHOTOS_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase appDb, int oldVersion, int newVersion) {
 	appDb.execSQL("drop table if exists " + USERS_TABLE);
+	appDb.execSQL("drop table if exists " + PHOTOS_TABLE);
 	onCreate(appDb);
     }
 
     public long addUser(User user) {
-	SQLiteDatabase db = this.getWritableDatabase();
 	ContentValues values = new ContentValues();
 	values.put(NAME, user.getName());
 	values.put(ID, Integer.parseInt(user.getId()));
-	long retVal = db.insert(USERS_TABLE, "", values);
-	db.close();
-	return retVal;
+	return addRecord(USERS_TABLE, values);
+    }
+
+    public long addPhoto(UserPhoto photo) {
+	ContentValues values = new ContentValues();
+	values.put(NAME, photo.getName());
+	values.put(ID, Integer.parseInt(photo.getId()));
+	return addRecord(PHOTOS_TABLE, values);
     }
 
     public long numOfUsers() {
-	SQLiteDatabase db = this.getReadableDatabase();
-	SQLiteStatement statement = db.compileStatement(USER_COUNT_QUERY);
-	long retVal = 0;
-	try {
-	    retVal = statement.simpleQueryForLong();
-	} catch (SQLiteDoneException e) {
+	return getCount(USER_COUNT_QUERY);
+    }
 
-	} finally {
-	    statement.close();
-	    db.close();
-	}
-	return retVal;
+    public long numOfPhotos() {
+	return getCount(PHOTO_COUNT_QUERY);
     }
 
     /**
@@ -104,5 +115,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	db.close();
 	return users;
+    }
+
+    private long getCount(String countStr) {
+	SQLiteDatabase db = this.getReadableDatabase();
+	SQLiteStatement statement = db.compileStatement(countStr);
+	long retVal = 0;
+	try {
+	    retVal = statement.simpleQueryForLong();
+	} catch (SQLiteDoneException e) {
+
+	} finally {
+	    statement.close();
+	    db.close();
+	}
+	return retVal;
+    }
+
+    private long addRecord(String table, ContentValues values) {
+	SQLiteDatabase db = this.getWritableDatabase();
+	long retVal = db.insert(table, "", values);
+	db.close();
+	return retVal;
     }
 }

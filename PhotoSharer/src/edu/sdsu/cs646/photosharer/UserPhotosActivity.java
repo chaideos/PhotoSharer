@@ -1,15 +1,17 @@
 package edu.sdsu.cs646.photosharer;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 
 import edu.sdsu.cs646.photosharer.fragments.PhotosFragment;
+import edu.sdsu.cs646.photosharer.interfaces.PhotoSelectionListener;
 
 /**
  * An activity which acts as a host for the {@link PhotosFragment}
  */
-public class UserPhotosActivity extends Activity {
+public class UserPhotosActivity extends Activity implements
+	PhotoSelectionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,9 +24,10 @@ public class UserPhotosActivity extends Activity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-	// Inflate the menu; this adds items to the action bar if it is present.
-	getMenuInflater().inflate(R.menu.main, menu);
-	return true;
+    public void onPhotoSelected(String photo) {
+	Intent intent = new Intent();
+	intent.setClass(this, DisplayPhotoActivity.class);
+	intent.putExtra(DisplayPhotoActivity.PHOTO_KEY, photo);
+	startActivity(intent);
     }
 }
