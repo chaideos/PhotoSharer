@@ -1,6 +1,7 @@
 package edu.sdsu.cs646.photosharer;
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -14,8 +15,11 @@ public class UsersActivity extends Activity implements UserSelectionListener {
     protected void onCreate(Bundle savedInstanceState) {
 	super.onCreate(savedInstanceState);
 	setContentView(R.layout.activity_master_detail);
-	getFragmentManager().beginTransaction()
-		.add(R.id.fragment_container, new UsersFragment()).commit();
+	FragmentManager manager = getFragmentManager();
+	if (manager.findFragmentById(R.id.fragment_container) == null) {
+	    manager.beginTransaction()
+		    .add(R.id.fragment_container, new UsersFragment()).commit();
+	}
     }
 
     @Override

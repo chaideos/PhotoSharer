@@ -1,6 +1,7 @@
 package edu.sdsu.cs646.photosharer;
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -19,8 +20,11 @@ public class UserPhotosActivity extends Activity implements
 	setContentView(R.layout.activity_master_detail);
 	String user = getIntent().getStringExtra(PhotosFragment.USER_KEY);
 	PhotosFragment fragment = PhotosFragment.newInstance(user);
-	getFragmentManager().beginTransaction()
-		.add(R.id.fragment_container, fragment).commit();
+	FragmentManager manager = getFragmentManager();
+	if (manager.findFragmentById(R.id.fragment_container) == null) {
+	    manager.beginTransaction().add(R.id.fragment_container, fragment)
+		    .commit();
+	}
     }
 
     @Override

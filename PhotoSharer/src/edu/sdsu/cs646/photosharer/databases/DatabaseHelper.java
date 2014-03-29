@@ -42,12 +42,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	    + PHOTOS_TABLE + " ( " + ID + " INTEGER PRIMARY KEY," + NAME
 	    + "TEXT NOT NULL," + LINK + " TEXT NOT NULL)";
 
-    private static final String USER_COUNT_QUERY = "select count(*) from "
-	    + USERS_TABLE;
-
-    private static final String PHOTO_COUNT_QUERY = "select count(*) from "
-	    + PHOTOS_TABLE;
-
     public DatabaseHelper(Context context) {
 	super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -80,11 +74,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public long numOfUsers() {
-	return getCount(USER_COUNT_QUERY);
+	return getCount(USERS_TABLE);
     }
 
     public long numOfPhotos() {
-	return getCount(PHOTO_COUNT_QUERY);
+	return getCount(PHOTOS_TABLE);
     }
 
     /**
@@ -117,8 +111,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	return users;
     }
 
-    private long getCount(String countStr) {
+    private long getCount(String tableName) {
 	SQLiteDatabase db = this.getReadableDatabase();
+	String countStr = "select count(*) from " + tableName;
 	SQLiteStatement statement = db.compileStatement(countStr);
 	long retVal = 0;
 	try {

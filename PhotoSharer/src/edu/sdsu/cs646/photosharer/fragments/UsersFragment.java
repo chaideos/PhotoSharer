@@ -78,7 +78,6 @@ public class UsersFragment extends ListFragment implements
     @Override
     public void onAttach(Activity activity) {
 	super.onAttach(activity);
-
 	// This makes sure that the container activity has implemented
 	// the callback interface. If not, it throws an exception
 	try {
@@ -106,8 +105,10 @@ public class UsersFragment extends ListFragment implements
 	super.onActivityCreated(savedInstanceState);
 	dbHelper = new DatabaseHelper(getActivity());
 	numOfUsers = dbHelper.numOfUsers();
+
 	if (numOfUsers <= 0) {
 	    new RetrieveUsersTask(this).execute(baseUrl);
+	    // queue.add(request);
 	} else {
 	    setAdapter(dbHelper.getUsers());
 	}
@@ -140,12 +141,22 @@ public class UsersFragment extends ListFragment implements
 	selectionListener.onUserSelected(selectedUser.getId());
     }
 
-    private void setAdapter(List<User> data) {
+    void setAdapter(List<User> data) {
 	if (getActivity() != null) {
 	    Collections.sort(data);
 	    ListAdapter adapter = new NetworkDataListAdapter<User>(
 		    getActivity(), data);
 	    setListAdapter(adapter);
+	}
+    }
+
+    private void updateData(boolean forceUpdate) {
+	dbHelper = new DatabaseHelper(getActivity());
+	numOfUsers = dbHelper.numOfUsers();
+	if (numOfUsers <= 0 || forceUpdate) {
+	    new RetrieveUsersTask(this).execute(baseUrl);
+	} else {
+	    setAdapter(dbHelper.getUsers());
 	}
     }
 }
