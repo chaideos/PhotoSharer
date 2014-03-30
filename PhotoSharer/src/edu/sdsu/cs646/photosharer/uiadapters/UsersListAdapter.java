@@ -1,6 +1,5 @@
 package edu.sdsu.cs646.photosharer.uiadapters;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
@@ -12,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import edu.sdsu.cs646.photosharer.R;
-import edu.sdsu.cs646.photosharer.data.NetworkData;
+import edu.sdsu.cs646.photosharer.data.User;
 
 /**
  * A custom list adapter displaying the NetworkDatas separated by headers of
@@ -26,38 +25,21 @@ import edu.sdsu.cs646.photosharer.data.NetworkData;
  * variees/] and Listview with multiple items tutorial
  * [http://android.amberfog.com/?p=296]
  */
-public class NetworkDataListAdapter<T extends NetworkData> extends BaseAdapter {
+public class UsersListAdapter extends BaseAdapter {
 
-    public final static int TYPE_SECTION_HEADER = 0;
+    public final static int TYPE_SEPARATOR = 0;
+
+    public final static int TYPE_ITEM = 1;
 
     public final static int TOTAL_VIEWS = 2;
 
     private final Context mContext;
 
-    private final List<T> data;
+    private final List<Object> data;
 
-    private final List<String> headers;
-
-    public NetworkDataListAdapter(Context context, List<T> data) {
+    public UsersListAdapter(Context context, List<Object> data) {
 	mContext = context;
 	this.data = data;
-	this.headers = new ArrayList<String>();
-    }
-
-    public NetworkDataListAdapter(Context context) {
-	mContext = context;
-	this.data = new ArrayList<T>();
-	this.headers = new ArrayList<String>();
-    }
-
-    public void addUser(T user) {
-	this.data.add(user);
-	notifyDataSetChanged();
-    }
-
-    public void addHeader(String header) {
-	this.headers.add(header);
-	notifyDataSetChanged();
     }
 
     // Using the ViewHolder/ViewWrapper pattern as discussed by Mark Murphy in
@@ -68,7 +50,7 @@ public class NetworkDataListAdapter<T extends NetworkData> extends BaseAdapter {
 
 	ImageView image = null;
 
-	ViewHolder(ImageView image, TextView text) {
+	ViewHolder(TextView text, ImageView image) {
 	    this.image = image;
 	    this.text = text;
 	}
@@ -101,30 +83,49 @@ public class NetworkDataListAdapter<T extends NetworkData> extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
 	ViewHolder holder = null;
+	TextView text = null;
+	ImageView image = null;
+	int type = getItemViewType(position);
 	if (convertView == null) {
-	    convertView = LayoutInflater.from(mContext).inflate(
-		    R.layout.list_item_row, null);
-	    TextView textView = (TextView) convertView
-		    .findViewById(R.id.dataText);
-	    ImageView imageView = (ImageView) convertView
-		    .findViewById(R.id.dataImage);
-	    holder = new ViewHolder(imageView, textView);
+
+	    if (type == TYPE_ITEM) {
+		convertView = LayoutInflater.from(mContext).inflate(
+			R.layout.list_item_row, null);
+		text = (TextView) convertView.findViewById(R.id.dataText);
+		image = (ImageView) convertView.findViewById(R.id.dataImage);
+	    } else if (type == TYPE_SEPARATOR) {
+		convertView = LayoutInflater.from(mContext).inflate(
+			R.layout.list_header, null);
+		text = (TextView) convertView.findViewById(R.id.sectionHeader);
+
+	    }
+	    holder = new ViewHolder(text, image);
 	    convertView.setTag(holder);
 	} else {
 	    holder = (ViewHolder) convertView.getTag();
 	}
 	TextView textView = holder.getText();
-	textView.setText(data.get(position).getName());
+	if (type == TYPE_ITEM) {
+	    textView.setText(((User) data.get(position)).getName());
+	} else {
+	    textView.setText(((String) data.get(position)));
+	}
 	return convertView;
     }
 
-    // @Override
-    // public int getItemViewType(int position) {
-    // return mSeparatorsSet.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
-    // }
-    //
-    // @Override
-    // public int getViewTypeCount() {
-    // return TYPE_MAX_COUNT;
-    // }
+    @Override
+    public int getItemViewType(int position) {
+	return (data.get(position) instanceof String) ? TYPE_SEPARATOR
+		: TYPE_ITEM;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+	return TOTAL_VIEWS;
+    }
+
+    @Override
+    public boolean isEnabled(int position) {
+	return getItemViewType(position) != TYPE_SEPARATOR;
+    }
 }

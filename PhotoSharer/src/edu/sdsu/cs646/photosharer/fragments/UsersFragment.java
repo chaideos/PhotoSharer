@@ -19,7 +19,6 @@
 
 package edu.sdsu.cs646.photosharer.fragments;
 
-import java.util.Collections;
 import java.util.List;
 
 import android.app.Activity;
@@ -35,11 +34,12 @@ import android.widget.ListView;
 import edu.sdsu.cs646.photosharer.R;
 import edu.sdsu.cs646.photosharer.asynctasks.AddUsersTask;
 import edu.sdsu.cs646.photosharer.asynctasks.RetrieveUsersTask;
+import edu.sdsu.cs646.photosharer.data.PhotoSharerUtil;
 import edu.sdsu.cs646.photosharer.data.User;
 import edu.sdsu.cs646.photosharer.databases.DatabaseHelper;
 import edu.sdsu.cs646.photosharer.interfaces.LoadDataListener;
 import edu.sdsu.cs646.photosharer.interfaces.UserSelectionListener;
-import edu.sdsu.cs646.photosharer.uiadapters.NetworkDataListAdapter;
+import edu.sdsu.cs646.photosharer.uiadapters.UsersListAdapter;
 
 /**
  * A ListFragment depicting the users list
@@ -143,20 +143,11 @@ public class UsersFragment extends ListFragment implements
 
     void setAdapter(List<User> data) {
 	if (getActivity() != null) {
-	    Collections.sort(data);
-	    ListAdapter adapter = new NetworkDataListAdapter<User>(
-		    getActivity(), data);
+	    List<Object> adapterData = PhotoSharerUtil.INSTANCE
+		    .getDataWithHeaders(data);
+	    ListAdapter adapter = new UsersListAdapter(getActivity(),
+		    adapterData);
 	    setListAdapter(adapter);
-	}
-    }
-
-    private void updateData(boolean forceUpdate) {
-	dbHelper = new DatabaseHelper(getActivity());
-	numOfUsers = dbHelper.numOfUsers();
-	if (numOfUsers <= 0 || forceUpdate) {
-	    new RetrieveUsersTask(this).execute(baseUrl);
-	} else {
-	    setAdapter(dbHelper.getUsers());
 	}
     }
 }
